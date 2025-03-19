@@ -14,6 +14,7 @@
 #
 
 from core.label import Label
+from core.redfishConfig import RedfishConfig
 from core.trace import TraceLevel, Trace
 from core.jsonBuilder import JsonBuilder, JsonType
 import base64
@@ -69,13 +70,13 @@ class UrlStatus():
 
         Trace.log(TraceLevel.TRACE, '   ++ UrlStatus(update_status): status={} reason={} valid={}'.format(status, reason, self.valid))
 
-    def print_status(self):
-        print('')
-        print(' [] URL        : {}'.format(self.url))
-        print(' [] Status     : {}'.format(self.urlStatus))
-        print(' [] Reason     : {}'.format(self.urlReason))
+    def print_status(self): # TODO change to Trace.log
+        Trace.log(TraceLevel.INFO, '')
+        Trace.log(TraceLevel.INFO, ' [] URL        : {}'.format(self.url))
+        Trace.log(TraceLevel.INFO, ' [] Status     : {}'.format(self.urlStatus))
+        Trace.log(TraceLevel.INFO, ' [] Reason     : {}'.format(self.urlReason))
         if self.urlStatus > 200 and self.context != '':
-            print(' [] Context    : {}'.format(self.context))
+            Trace.log(TraceLevel.INFO, ' [] Context    : {}'.format(self.context))
 
 ################################################################################
 # UrlAccess
@@ -89,7 +90,7 @@ class UrlAccess():
     #     These method uses the python requests package
     #
     @classmethod
-    def process_push(self, redfishConfig, link, filename, payload = None):
+    def process_push(self, redfishConfig: RedfishConfig, link: UrlStatus, filename, payload = None):
         Trace.log(TraceLevel.INFO, '++ UrlAccess: process_push - ({}) session ({}:{})'.format(link.url, Label.decode(config.sessionIdVariable), redfishConfig.sessionKey))
 
         startTime = time.time()
@@ -119,7 +120,7 @@ class UrlAccess():
             Trace.log(TraceLevel.INFO, '   -- post w/ JSON')
             if (redfishConfig.get_bool('dumppostdata')):
                 Trace.log(TraceLevel.INFO, '[[ PAYLOAD DATA ({}) ]]'.format(link.url))
-                print(json.dumps(payload, indent=4))
+                Trace.log(TraceLevel.INFO, json.dumps(payload, indent=4))
                 Trace.log(TraceLevel.INFO, '[[ PAYLOAD DATA END ]]')
         else:
             payload = {}
@@ -139,11 +140,11 @@ class UrlAccess():
                 pass
 
             # Trace.log(TraceLevel.INFO, '============================== RESPONSE ==============================')
-            # print(response.content)
-            # print(response.text)
-            # print('status_code: {}'.format(response.status_code))
-            # print('reason: {}'.format(response.reason))
-            # print('request: {}'.format(response.request))
+            # Trace.log(TraceLevel.INFO, response.content)
+            # Trace.log(TraceLevel.INFO, response.text)
+            # Trace.log(TraceLevel.INFO, 'status_code: {}'.format(response.status_code))
+            # Trace.log(TraceLevel.INFO, 'reason: {}'.format(response.reason))
+            # Trace.log(TraceLevel.INFO, 'request: {}'.format(response.request))
             # Trace.log(TraceLevel.INFO, '============================== END RESPONSE ==============================')
 
         except Exception as e:
@@ -161,7 +162,7 @@ class UrlAccess():
     #     These method should be updated to use the python requests package
     #
     @classmethod
-    def process_request(self, redfishConfig, link, method = 'GET', addAuth = True, data = None, decode = True):
+    def process_request(self, redfishConfig: RedfishConfig, link: UrlStatus, method = 'GET', addAuth = True, data = None, decode = True):
 
         try:
             requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
@@ -187,15 +188,19 @@ class UrlAccess():
 
             if data is not None:
                 headers['If-None-Match'] = '""'
+                headers['Content-Type'] = 'application/json; charset=UTF-8'
                 if (redfishConfig.get_bool('dumppostdata')):
                     Trace.log(TraceLevel.INFO, '[[ POST DATA ({}) ]]'.format(link.url))
-                    print("{}".format(json.dumps(data, indent=4)))
+                    Trace.log(TraceLevel.INFO, "{}".format(json.dumps(data, indent=4)))
                     Trace.log(TraceLevel.INFO, '[[ POST DATA END ]]')
 
             Trace.log(TraceLevel.DEBUG, '   >> headers={}'.format(headers))
             link.response = requests.request(
                 method, fullUrl, headers=headers, auth=authorization, json=data,
                 timeout=redfishConfig.get_urltimeout(), verify=redfishConfig.get_bool('certificatecheck'))
+            
+            Trace.log(TraceLevel.TRACE, '   >> request.headers={}'.format(link.response.request.headers))
+            Trace.log(TraceLevel.TRACE, '   >> request.body={}'.format(link.response.request.body))
 
             endTime = time.time()
             elapsed = (endTime - startTime) * 1000000
@@ -255,9 +260,9 @@ class UrlAccess():
             link.update_status(link.response.status_code, link.response.reason)
 
             if (redfishConfig.get_bool('dumpjsondata')):
-                if (link.jsonData != None):
+                if (link.jsonData is not None):
                     Trace.log(TraceLevel.INFO, '[[ JSON DATA ({}) ]]'.format(link.url))
-                    print(json.dumps(link.jsonData, indent=4))
+                    Trace.log(TraceLevel.INFO, json.dumps(link.jsonData, indent=4))
                     Trace.log(TraceLevel.INFO, '[[ JSON DATA END ]]')
 
             link.response.close()

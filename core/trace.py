@@ -67,7 +67,7 @@ class Trace:
         return cls.tracelevel
 
     @classmethod
-    def log(cls, level, entry):
+    def log(cls, level, entry, **kwargs):
 
         if (level == TraceLevel.ALWAYS or cls.tracelevel >= level):
-            print("{}{}".format(cls.preface[level], entry))
+            print("{}{}".format(cls.preface[level], entry), **kwargs)
