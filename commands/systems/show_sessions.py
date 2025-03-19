@@ -67,7 +67,7 @@ class SessionInformation:
             Trace.log(TraceLevel.DEBUG, '   ++ Session: ({}, {}, {}, {})'.format(
                 link.jsonData['Id'], link.jsonData['Name'], link.jsonData['Description'], link.jsonData['UserName']))
     
-            self.Id = int(link.jsonData['Id'])
+            self.Id = link.jsonData['Id']
             self.Name = link.jsonData['Name']
             self.Description =link.jsonData['Description']
             self.UserName = link.jsonData['UserName']

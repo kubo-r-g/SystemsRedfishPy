@@ -14,11 +14,22 @@
 #
 
 import os
-import readline
 import rlcompleter
 import sys
 from core.redfishCommand import RedfishCommand
 from core.trace import TraceLevel, Trace
+
+if os.name == 'nt':
+    import pyreadline3
+    readline = pyreadline3.Readline()
+elif os.name == 'posix':
+    import readline
+else:
+    try:
+        import readline
+    except ImportError:
+        print('Python module readline not supported on this platform')
+        exit(1)
 
 HISTORY_FILENAME = 'redfishAPI.hist'
 

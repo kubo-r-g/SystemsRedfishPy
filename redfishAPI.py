@@ -55,7 +55,7 @@ if __name__ == '__main__':
 
     parser.add_argument('-c', '--config', help='Specify the Redfish API JSON configuration file.')
     parser.add_argument('-s', '--scriptfile', help='Specify the Redfish API script file.')
-    parser.add_argument('-t', '--tracelevel', help='Set the trace level (4, 5, 6, or 7) INFO=4, VERBOSE=5, DEBUG=5, TRACE=6', nargs='?', const=1, type=int)
+    parser.add_argument('-t', '--tracelevel', help='Set the trace level (4, 5, 6, or 7) INFO=4, VERBOSE=5, DEBUG=6, TRACE=7', nargs='?', const=1, type=int)
 
     args = parser.parse_args()
 
