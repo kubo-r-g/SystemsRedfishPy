@@ -1,0 +1,13 @@
+#
+# Redfish API Test Script - River Pearson
+#
+
+
+!ipaddress 10.2.222.55
+!username admin
+!password password
+!brand amibmc
+!serviceversion 1
+create session
+
+run gem ver
